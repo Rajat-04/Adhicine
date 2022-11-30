@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "103455935976",
+    "project_id": "adhicine-96bf7",
+    "storage_bucket": "adhicine-96bf7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:103455935976:android:5b5fd073b032da8b19e85d",
+        "android_client_info": {
+          "package_name": "com.example.adhicene"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "103455935976-a6do0obcsgn5l6v113r94kl9v2rouipl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.adhicene",
+            "certificate_hash": "e6474b7c22c41f858f83c831cba84b20fd1547e1"
+          }
+        },
+        {
+          "client_id": "103455935976-l592p1ts5c14mjb0givmackiheq62gph.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAuV4ykMopZcRhVXte7J5MS-Fs9wJAcfow"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "103455935976-l592p1ts5c14mjb0givmackiheq62gph.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
