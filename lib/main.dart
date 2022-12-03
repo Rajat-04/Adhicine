@@ -1,6 +1,4 @@
 import 'package:adhicene/firebase_auth/check_page.dart';
-import 'package:adhicene/screens/dashboard.dart';
-import 'package:adhicene/screens/login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 

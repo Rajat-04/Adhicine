@@ -1,3 +1,6 @@
+// ignore_for_file: prefer_const_constructors, sort_child_properties_last, prefer_const_literals_to_create_immutables, use_build_context_synchronously
+
+import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -13,6 +16,9 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   bool _isHidden = true;
+  bool emailErrorVisible = false;
+  bool passwordErrorVisible = false;
+  bool nameErrorVisible = false;
 
   //text controllers
   final _emailController = TextEditingController();
@@ -28,7 +34,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _emailController.dispose();
     _passwordController.dispose();
     _nameController.dispose();
@@ -36,15 +41,57 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future signUp() async {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return Center(child: CircularProgressIndicator());
+    if (_nameController.text.isNotEmpty) {
+      setState(() {
+        nameErrorVisible = false;
+      });
+      if (EmailValidator.validate(_emailController.text.trim().toString())) {
+        setState(() {
+          emailErrorVisible = false;
         });
-    await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim());
-    Navigator.pop(context);
+        if (validatePassword(_passwordController.text.trim().toString())) {
+          setState(() {
+            emailErrorVisible = false;
+            passwordErrorVisible = false;
+          });
+          showDialog(
+              context: context,
+              builder: (context) {
+                return Center(child: CircularProgressIndicator());
+              });
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+              email: _emailController.text.trim(),
+              password: _passwordController.text.trim());
+          Navigator.pop(context);
+        } else {
+          setState(() {
+            passwordErrorVisible = true;
+          });
+        }
+      } else {
+        setState(() {
+          emailErrorVisible = true;
+        });
+      }
+    } else {
+      setState(() {
+        nameErrorVisible = true;
+      });
+    }
+  }
+
+  bool validatePassword(String value) {
+    RegExp regex =
+        RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$');
+    if (value.isEmpty) {
+      return false;
+    } else {
+      if (!regex.hasMatch(value)) {
+        return false;
+      } else {
+        return true;
+      }
+    }
   }
 
   @override
@@ -109,19 +156,22 @@ class _RegisterPageState extends State<RegisterPage> {
                 SizedBox(
                   height: 10,
                 ),
-                Container(
-                  padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Invalid Name Format",
-                        style: TextStyle(
-                            color: Colors.red, fontWeight: FontWeight.w300),
-                      ),
-                    ],
-                  ),
-                ),
+                nameErrorVisible
+                    ? Container(
+                        padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Invalid Name Format",
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.w300),
+                            ),
+                          ],
+                        ),
+                      )
+                    : Container(),
                 SizedBox(
                   height: 20,
                 ),
@@ -152,19 +202,22 @@ class _RegisterPageState extends State<RegisterPage> {
                 SizedBox(
                   height: 10,
                 ),
-                Container(
-                  padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Incorrect Email Address",
-                        style: TextStyle(
-                            color: Colors.red, fontWeight: FontWeight.w300),
-                      ),
-                    ],
-                  ),
-                ),
+                emailErrorVisible
+                    ? Container(
+                        padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Incorrect Email Address",
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.w300),
+                            ),
+                          ],
+                        ),
+                      )
+                    : Container(),
                 SizedBox(
                   height: 20,
                 ),
@@ -203,19 +256,22 @@ class _RegisterPageState extends State<RegisterPage> {
                     ],
                   ),
                 ),
-                Container(
-                  padding: EdgeInsets.fromLTRB(10, 10, 0, 0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Password don't match",
-                        style: TextStyle(
-                            color: Colors.red, fontWeight: FontWeight.w300),
-                      ),
-                    ],
-                  ),
-                ),
+                passwordErrorVisible
+                    ? Container(
+                        padding: EdgeInsets.fromLTRB(10, 10, 0, 0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Password don't match",
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.w300),
+                            ),
+                          ],
+                        ),
+                      )
+                    : Container(),
                 SizedBox(
                   height: 30,
                 ),

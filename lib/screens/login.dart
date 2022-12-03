@@ -1,7 +1,10 @@
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, prefer_const_literals_to_create_immutables, sort_child_properties_last
+
 import 'package:adhicene/firebase_auth/check_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
+import 'dart:core';
+import 'package:email_validator/email_validator.dart';
 import 'forgot_password.dart';
 
 class Login extends StatefulWidget {
@@ -14,6 +17,8 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   bool _isHidden = true;
+  bool emailErrorVisible = false;
+  bool passwordErrorVisible = false;
 
   //text controllers
   final _emailController = TextEditingController();
@@ -27,23 +32,52 @@ class _LoginState extends State<Login> {
   }
 
   Future signIn() async {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return Center(child: CircularProgressIndicator());
+    if (EmailValidator.validate(_emailController.text.trim().toString())) {
+      if (validatePassword(_passwordController.text.trim().toString())) {
+        setState(() {
+          emailErrorVisible = false;
+          passwordErrorVisible = false;
         });
-    await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim());
-    Navigator.pop(context);
+        showDialog(
+            context: context,
+            builder: (context) {
+              return Center(child: CircularProgressIndicator());
+            });
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+            email: _emailController.text.trim(),
+            password: _passwordController.text.trim());
+        Navigator.pop(context);
+      } else {
+        setState(() {
+          passwordErrorVisible = true;
+        });
+      }
+    } else {
+      setState(() {
+        emailErrorVisible = true;
+      });
+    }
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  bool validatePassword(String value) {
+    RegExp regex =
+        RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[!@#\$&*~]).{8,}$');
+    if (value.isEmpty) {
+      return false;
+    } else {
+      if (!regex.hasMatch(value)) {
+        return false;
+      } else {
+        return true;
+      }
+    }
   }
 
   @override
@@ -99,7 +133,7 @@ class _LoginState extends State<Login> {
                       Expanded(
                         child: TextField(
                           controller: _emailController,
-                          keyboardType: TextInputType.visiblePassword,
+                          keyboardType: TextInputType.emailAddress,
                           decoration: const InputDecoration(
                             hintText: "Email Address",
                           ),
@@ -111,19 +145,22 @@ class _LoginState extends State<Login> {
                 SizedBox(
                   height: 10,
                 ),
-                Container(
-                  padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Incorrect Email Address",
-                        style: TextStyle(
-                            color: Colors.red, fontWeight: FontWeight.w300),
-                      ),
-                    ],
-                  ),
-                ),
+                emailErrorVisible
+                    ? Container(
+                        padding: EdgeInsets.fromLTRB(10, 0, 0, 0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Incorrect Email Address",
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.w300),
+                            ),
+                          ],
+                        ),
+                      )
+                    : Container(),
                 SizedBox(
                   height: 20,
                 ),
@@ -167,11 +204,14 @@ class _LoginState extends State<Login> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Text(
-                        "Password don't match",
-                        style: TextStyle(
-                            color: Colors.red, fontWeight: FontWeight.w300),
-                      ),
+                      passwordErrorVisible
+                          ? Text(
+                              "Invalid Password format",
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.w300),
+                            )
+                          : Container(),
                       Expanded(
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
